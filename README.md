@@ -64,11 +64,16 @@ hackday-arizona/
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate      # macOS/Linux: source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env        # add your GEMINI_API_KEY
-uvicorn main:app --reload --port 8000 or fastapi dev
+uvicorn main:app --reload --port 8000
 ```
+
+If you see **Address already in use**, either stop the other process using port 8000 (e.g. `lsof -i :8000` then `kill <PID>`) or run on another port: `uvicorn main:app --reload --port 8001`.
+
+If `uvicorn` is not found, either activate the venv first (`source .venv/bin/activate`) or run:
+`./.venv/bin/uvicorn main:app --reload --port 8000`
 
 Get your API key at https://aistudio.google.com
 
@@ -87,6 +92,23 @@ Frontend dev server runs on http://localhost:5173 and proxies `/chat`, `/health`
 See [API.md](API.md) for the full contract between frontend and backend. This is the single source of truth — backend owners update it when endpoints change.
 
 Interactive REST docs (while backend is running): http://localhost:8000/docs
+
+### Verify Maps grounding
+
+When the model recommends real places, the API returns a **non-null `widget_token`** that the frontend uses to show the Maps widget. To confirm grounding is working:
+
+1. **From the terminal** (with the backend running):
+   ```bash
+   cd backend && python verify_grounding.py
+   ```
+   The script calls `POST /chat` with a place-seeking message and prints whether `widget_token` is present.
+
+2. **In the server log** — when a request returns a widget token, you’ll see:  
+   `Maps grounding: widget_token present (len=...)`
+
+3. **In the app** — if the frontend Maps widget is wired to `widget_token`, you should see a map with pins when the reply recommends places.
+
+If `widget_token` is always `null`, check that your prompt asks for real places (e.g. “best tacos near campus”) and that your Gemini project has access to the grounding tools.
 
 ## Tech Stack
 

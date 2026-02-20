@@ -26,7 +26,7 @@ Tasks:
    - Use `GenerateContentConfig` with `system_instruction=SYSTEM_PROMPT`
    - Tools: `Tool(google_maps=GoogleMaps())` + `Tool(google_search=GoogleSearch())`
    - `tool_config=ToolConfig(retrieval_config=RetrievalConfig(lat_lng=LatLng(latitude=lat, longitude=lng)))`
-   - Model: `gemini-2.0-flash`
+   - Model: `gemini-2.5-flash`
    - Extract `response.text` as `reply` and `response.candidates[0].grounding_metadata.google_maps_widget_context_token` as `widget_token` (safe try/except, default None)
    - Return `{"reply": ..., "widget_token": ...}`
 2. The `/health` and `/chat` endpoints in `main.py` are already wired — just implement the function above.
@@ -99,7 +99,7 @@ Summary:
 ## Gotchas
 
 - CORS middleware in `main.py` must be registered BEFORE route definitions (it already is).
-- Use `gemini-2.0-flash` for text/maps. Use `gemini-2.5-flash-native-audio-preview-12-2025` for voice. Do NOT mix these up.
+- Use `gemini-2.5-flash` for text/maps. Use `gemini-2.5-flash-native-audio-preview-12-2025` for voice. Do NOT mix these up.
 - Browser mic must output 16-bit PCM at 16kHz mono. Use `AudioContext.sampleRate` resampling if needed.
 - Gemini Live responds at 24kHz — use a separate `AudioContext` for playback.
 - If `widget_token` is null, hide the Maps panel entirely. Don't render a broken iframe.
