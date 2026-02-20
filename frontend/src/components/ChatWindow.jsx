@@ -22,11 +22,7 @@ export default function ChatWindow({ messages, isTyping = false }) {
   }
 
   return (
-<<<<<<< HEAD
-    <div className=" bg-[#FFF5F2] flex-1 overflow-y-auto p-4 space-y-3">
-=======
     <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
->>>>>>> origin/main
       {messages.map((msg, i) => (
         <MessageBubble key={i} role={msg.role} content={msg.content} />
       ))}
