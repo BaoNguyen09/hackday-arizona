@@ -1,8 +1,8 @@
+import ReactMarkdown from 'react-markdown'
+
 /**
- * TODO:
- * - User bubble: orange filled, right-aligned
- * - Assistant bubble: dark card with left orange border, left-aligned
- * - Support markdown rendering in assistant messages (optional)
+ * User bubble: orange filled, right-aligned.
+ * Assistant bubble: dark card with left orange border, markdown rendered.
  */
 export default function MessageBubble({ role, content }) {
   const isUser = role === 'user'
@@ -16,7 +16,13 @@ export default function MessageBubble({ role, content }) {
             : 'bg-[#1c1c1c] border-l-4 border-[#f97316]'
         }`}
       >
-        {content}
+        {isUser ? (
+          content
+        ) : (
+          <div className="markdown-output [&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5">
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
+        )}
       </div>
     </div>
   )
