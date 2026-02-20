@@ -12,7 +12,7 @@ export default function MessageBubble({ role, content }) {
       <div
         className={`max-w-[80%] rounded-xl px-4 py-2 ${
           isUser
-            ? 'bg-[#f97316] text-white'
+            ? 'bg-[#E5784F] text-white'
             : 'bg-[#1c1c1c] border-l-4 border-[#f97316]'
         }`}
       >

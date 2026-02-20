@@ -16,7 +16,7 @@ export default function SuggestedPrompts({ onSelect }) {
         <button
           key={prompt}
           onClick={() => onSelect(prompt)}
-          className="text-sm bg-[#1c1c1c] text-[#9ca3af] px-3 py-1.5 rounded-full hover:bg-[#f97316]/20 hover:text-[#f97316] transition-colors"
+          className="text-sm bg-[#EFD2C7] text-[#461C0C] px-3 py-1.5 rounded-full hover:bg-[#f97316]/20 hover:text-[#f97316] transition-colors"
         >
           {prompt}
         </button>

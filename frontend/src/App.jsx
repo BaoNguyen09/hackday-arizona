@@ -6,6 +6,7 @@ import MicButton from './components/MicButton'
 import VolumeIndicator from './components/VolumeIndicator'
 import SuggestedPrompts from './components/SuggestedPrompts'
 import { useLocation } from './hooks/useLocation'
+import pot from './assets/pot.png';
 import { useVoice } from './hooks/useVoice'
 
 export default function App() {
@@ -60,31 +61,50 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-[#111111] text-[#f5f5f5]">
-      {/* Chat panel */}
-      <div className="flex flex-col w-[55%] border-r border-[#1c1c1c]">
-        <header className="flex items-center justify-between p-4 border-b border-[#1c1c1c]">
-          <h1 className="text-xl font-bold">🍜 Dishcovery</h1>
-          {locationError ? (
-            <span className="flex items-center gap-2 text-sm text-[#9ca3af]">
-              <span>📍 Using default location</span>
-              <button
-                type="button"
-                onClick={requestLocation}
-                className="text-[#f97316] hover:underline"
-              >
-                Use my location
-              </button>
-            </span>
-          ) : (
-            <span className="text-sm text-[#9ca3af]">📍 Near you</span>
-          )}
+    <div className="h-screen bg-linear-to-br from-[#D8A08A] to-[#A3634B]  text-[#f5f5f5]">
+      
+       <header className="p-2 flex items-center justify-between relative">
+          <div className="flex-1 flex flex-col items-center justify-center p-2"
+          >
+              <h1 className="absolute text-xl text-[#612F1E] font-bold p-6 "
+              style={{
+              backgroundImage: `url(${pot})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundSize: 'contain',
+            }}
+              >Dishcovery</h1>
+
+
+            {locationError ? (
+              <span className="flex items-center gap-100 text-sm text-[#9ca3af]">
+                <div className="bg-[#FFE2D5] rounded-2xl p-2 min-w-[60px] min-h-[48px] flex items-center justify-center">
+                  <span className="text-xl text-[#612F1E] font-bold">📍 Using default location</span>
+                  </div>
+                <div className="bg-[#FFE2D5] rounded-2xl p-2 min-w-[60px] min-h-[48px] flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    className="text-xl text-[#612F1E] font-bold hover:underline"
+                  >
+                    Use my location
+                  </button>
+                </div>
+              </span>
+            ) : (
+              <span className="text-sm text-[#9ca3af]">📍 Near you</span>
+            )}
+          </div>
         </header>
+      <div className="flex h-[calc(100vh-80px)] w-full gap-4 p-4" >
+      {/* Chat panel */}
+      <div className="flex-1 bg-[#FFF5F2] h-full rounded-2xl shadow-lg overflow-hidden">
+        <div className="h-full flex flex-col shadow-lg">
 
         <ChatWindow messages={messages} isTyping={isLoading} />
         {messages.length === 0 && <SuggestedPrompts onSelect={handleSend} />}
-
-        <div className="flex items-center gap-2 p-4 border-t border-[#1c1c1c]">
+        <div className="border-t border-[#1c1c1c] bg-[#FFF5F2] flex items-center gap-2 p-4 sticky bottom-0">
+          <div className="flex items-center gap-2 p-4 border-t border-[#1c1c1c]">
           <ChatInput
           value={inputText}
           onChange={setInputText}
@@ -95,12 +115,15 @@ export default function App() {
         </div>
         <VolumeIndicator isActive={voice.isActive} volume={voice.volume} />
       </div>
+      </div>
+      </div>
+      {/* Maps panel */}
 
-      {/* Maps panel - h-full so map and list fill the panel; min-h-0 so flex children can shrink */}
-      <div className="w-[45%] h-full min-h-0 flex flex-col min-w-0">
-        <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+      <div className="flex-1 h-full flex items-center justify-center">
+        <div className="w-full h-full rounded-2xl shadow-lg bg-white flex items-center justify-center overflow-hidden">
           <MapsWidget widgetToken={widgetToken} lat={lat} lng={lng} />
         </div>
+      </div>
       </div>
     </div>
   )
