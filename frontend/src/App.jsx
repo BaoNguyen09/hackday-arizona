@@ -14,7 +14,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [inputText, setInputText] = useState('')
   const { lat, lng, error: locationError, requestLocation } = useLocation()
-  const voice = useVoice({ lat, lng })
+  const voice = useVoice({ lat, lng, onWidgetToken: setWidgetToken })
   const prevVoiceActiveRef = useRef(false)
 
   // While voice is active: show live transcript in the input (real-time, including interim)
@@ -96,9 +96,11 @@ export default function App() {
         <VolumeIndicator isActive={voice.isActive} volume={voice.volume} />
       </div>
 
-      {/* Maps panel */}
-      <div className="w-[45%] flex items-center justify-center">
-        <MapsWidget widgetToken={widgetToken} lat={lat} lng={lng} />
+      {/* Maps panel - h-full so map and list fill the panel; min-h-0 so flex children can shrink */}
+      <div className="w-[45%] h-full min-h-0 flex flex-col min-w-0">
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+          <MapsWidget widgetToken={widgetToken} lat={lat} lng={lng} />
+        </div>
       </div>
     </div>
   )
