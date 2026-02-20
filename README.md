@@ -87,6 +87,14 @@ npm run dev
 
 Frontend dev server runs on http://localhost:5173 and proxies `/chat`, `/health`, and `/voice` to the backend at :8000.
 
+For the **Maps widget** (when the model returns places), create a `frontend/.env` with a Google Maps JavaScript API key and enable **Maps JavaScript API** and **Places API** for that key in [Google Cloud Console](https://console.cloud.google.com/apis/library):
+
+```bash
+VITE_GOOGLE_MAPS_API_KEY=your_maps_platform_key
+```
+
+This is separate from the Gemini API key used by the backend.
+
 ### Testing the voice flow
 
 1. **Backend** (in one terminal):
@@ -104,7 +112,7 @@ Frontend dev server runs on http://localhost:5173 and proxies `/chat`, `/health`
 
 3. **In the browser** (http://localhost:5173):
    - Allow microphone access when prompted.
-   - Tap the mic button (orange circle). It should pulse while “listening.”
+   - Tap the mic button (orange circle). It should pulse while "listening."
    - Speak for a second or two. The mock responds after ~10 chunks; you should see:
      - A user message in the chat (your transcript) when you stop the mic.
      - A mock `widget_token` updating the Maps widget (if the widget uses it).
