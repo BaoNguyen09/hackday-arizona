@@ -78,7 +78,6 @@ If `uvicorn` is not found, either activate the venv first (`source .venv/bin/act
 Get your API key at https://aistudio.google.com
 
 ### Frontend
-
 ```bash
 cd frontend
 npm install

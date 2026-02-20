@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import pot from './assets/pot.png';
+import ChatBox from './components/ChatBox'
 import ChatWindow from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import MapsWidget from './components/MapsWidget'

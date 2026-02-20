@@ -15,7 +15,7 @@ export default function ChatWindow({ messages, isTyping = false }) {
 
   if (messages.length === 0 && !isTyping) {
     return (
-      <div className="flex-1 flex items-center justify-center text-[#9ca3af]">
+      <div className=" bg-[#FFF5F2] flex-1 flex items-center justify-center text-[#9ca3af]">
         <p>Ask me what you're craving...</p>
       </div>
     )
