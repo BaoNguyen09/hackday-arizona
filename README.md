@@ -73,7 +73,6 @@ uvicorn main:app --reload --port 8000 or fastapi dev
 Get your API key at https://aistudio.google.com
 
 ### Frontend
-
 ```bash
 cd frontend
 npm install

@@ -11,7 +11,7 @@ const PROMPTS = [
  */
 export default function SuggestedPrompts({ onSelect }) {
   return (
-    <div className="flex gap-2 px-4 pb-2">
+    <div className="bg-[#FFF5F2] flex gap-2 px-4 pb-2">
       {PROMPTS.map((prompt) => (
         <button
           key={prompt}
