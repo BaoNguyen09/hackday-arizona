@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-// Load Maps JS API + places once. Resolves when ready for Contextual View.
-// Use v=weekly to avoid the "alpha channel / development only" banner; use v=alpha if the widget breaks.
+// Load Maps JS API (alpha) + places — required for Contextual View.
 let mapsLoadPromise = null
 function loadMapsForWidget() {
   if (mapsLoadPromise) return mapsLoadPromise
@@ -19,7 +18,7 @@ function loadMapsForWidget() {
       resolve()
     }
     const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(MAPS_API_KEY)}&v=weekly&libraries=places&callback=${cb}`
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(MAPS_API_KEY)}&v=alpha&libraries=places&callback=${cb}`
     script.async = true
     script.onerror = () => {
       delete window[cb]
