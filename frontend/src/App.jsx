@@ -12,25 +12,29 @@ export default function App() {
   const [messages, setMessages] = useState([])
   const [widgetToken, setWidgetToken] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [inputText, setInputText] = useState('')
   const { lat, lng, error: locationError, requestLocation } = useLocation()
   const voice = useVoice({ lat, lng })
   const prevVoiceActiveRef = useRef(false)
 
-  // Update chat with voice transcript when voice session ends
+  // While voice is active: show live transcript in the input (real-time, including interim)
   useEffect(() => {
-    if (prevVoiceActiveRef.current && !voice.isActive && voice.transcript) {
-      setMessages((m) => [...m, { role: 'user', content: voice.transcript }])
-    }
-    prevVoiceActiveRef.current = voice.isActive
-  }, [voice.isActive, voice.transcript])
+    if (voice.isActive) setInputText(voice.liveTranscript)
+  }, [voice.isActive, voice.liveTranscript])
 
-  // Update widget token from voice responses
+  // When voice session ends: put final transcript in input for user to edit or send (no auto-send)
   useEffect(() => {
-    if (voice.widgetToken != null) setWidgetToken(voice.widgetToken)
-  }, [voice.widgetToken])
+    if (!prevVoiceActiveRef.current || voice.isActive) {
+      prevVoiceActiveRef.current = voice.isActive
+      return
+    }
+    prevVoiceActiveRef.current = false
+    setInputText(voice.userTranscript?.trim() ?? '')
+  }, [voice.isActive, voice.userTranscript])
 
   const handleSend = async (text) => {
     if (!text.trim()) return
+    setInputText('')
     const userMessage = { role: 'user', content: text.trim() }
     setMessages((prev) => [...prev, userMessage])
     setIsLoading(true)
@@ -81,8 +85,13 @@ export default function App() {
         {messages.length === 0 && <SuggestedPrompts onSelect={handleSend} />}
 
         <div className="flex items-center gap-2 p-4 border-t border-[#1c1c1c]">
-          <ChatInput onSend={handleSend} disabled={isLoading} />
-          <MicButton lat={lat} lng={lng} />
+          <ChatInput
+          value={inputText}
+          onChange={setInputText}
+          onSend={handleSend}
+          disabled={isLoading}
+        />
+          <MicButton isActive={voice.isActive} onStart={voice.start} onStop={voice.stop} />
         </div>
         <VolumeIndicator isActive={voice.isActive} volume={voice.volume} />
       </div>

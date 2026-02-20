@@ -41,8 +41,11 @@ async def _mock_voice_session(websocket, lat: float, lng: float):
                 break
             if "bytes" in msg:
                 chunk_count += 1
-                # After a few chunks, simulate a reply: transcript + widget_token
+                # After a few chunks, simulate: user was heard (user_transcript) + assistant reply
                 if chunk_count == 10:
+                    await websocket.send_text(
+                        json.dumps({"user_transcript": "You spoke (voice input)"})
+                    )
                     await websocket.send_text(json.dumps({"transcript": "I heard you! Here are some spots."}))
                     await websocket.send_text(json.dumps({"widget_token": "mock-widget-token-for-testing"}))
                     # Optional: send 0.1s of silence (24kHz 16-bit mono) so playback path is exercised

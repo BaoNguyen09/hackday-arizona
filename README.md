@@ -93,7 +93,7 @@ For the **Maps widget** (when the model returns places), create a `frontend/.env
 VITE_GOOGLE_MAPS_API_KEY=your_maps_platform_key
 ```
 
-This is separate from the Gemini API key used by the backend.
+This is separate from the Gemini API key used by the backend. If you see **ExpiredKeyMapError**, the key is expired or invalid — create a new key in [Google Cloud Console](https://console.cloud.google.com/apis/credentials), enable **Maps JavaScript API** and **Places API**, and ensure billing is enabled on the project.
 
 ### Testing the voice flow
 

@@ -40,9 +40,14 @@ function rmsFromSamples(samples) {
   return Math.sqrt(sum / samples.length)
 }
 
+const SpeechRecognitionAPI =
+  typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
+
 export function useVoice({ lat, lng }) {
   const [isActive, setIsActive] = useState(false)
   const [transcript, setTranscript] = useState('')
+  const [userTranscript, setUserTranscript] = useState('')
+  const [liveTranscript, setLiveTranscript] = useState('')
   const [widgetToken, setWidgetToken] = useState(null)
   const [volume, setVolume] = useState(0)
 
@@ -54,8 +59,19 @@ export function useVoice({ lat, lng }) {
   const playbackContextRef = useRef(null)
   const nextPlayTimeRef = useRef(0)
   const timeDataRef = useRef(null)
+  const recognitionRef = useRef(null)
+  const useLocalSttRef = useRef(false)
+  const finalTranscriptRef = useRef('')
 
   const stop = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop()
+        recognitionRef.current.abort()
+      } catch (_) {}
+      recognitionRef.current = null
+    }
+    useLocalSttRef.current = false
     if (analyserRef.current) {
       try {
         analyserRef.current.disconnect()
@@ -86,6 +102,7 @@ export function useVoice({ lat, lng }) {
     nextPlayTimeRef.current = 0
     setIsActive(false)
     setVolume(0)
+    // Don't clear transcript/userTranscript here — App reads them when session ends to add chat messages; we clear at start of next start()
   }, [])
 
   // Throttled volume meter while voice is active
@@ -124,14 +141,65 @@ export function useVoice({ lat, lng }) {
     audioContextRef.current = ctx
     const sampleRate = ctx.sampleRate
 
+    const source = ctx.createMediaStreamSource(stream)
+    const analyser = ctx.createAnalyser()
+    analyser.fftSize = 256
+    analyser.smoothingTimeConstant = 0.7
+    source.connect(analyser)
+    analyserRef.current = analyser
+
+    setTranscript('')
+    setUserTranscript('')
+    setLiveTranscript('')
+    setWidgetToken(null)
+    finalTranscriptRef.current = ''
+    setIsActive(true)
+
+    if (SpeechRecognitionAPI) {
+      const recognition = new SpeechRecognitionAPI()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = 'en-US'
+      recognition.onresult = (event) => {
+        let finalAdded = ''
+        let interim = ''
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const t = event.results[i][0].transcript
+          if (event.results[i].isFinal) {
+            finalAdded += t
+          } else {
+            interim += t
+          }
+        }
+        if (finalAdded) {
+          finalTranscriptRef.current = (finalTranscriptRef.current + finalAdded).trim()
+          setUserTranscript(finalTranscriptRef.current)
+        }
+        const display = (finalTranscriptRef.current + (interim ? ' ' + interim : '')).trim()
+        setLiveTranscript(display)
+      }
+      recognition.onerror = () => {}
+      recognition.start()
+      recognitionRef.current = recognition
+      useLocalSttRef.current = true
+    }
+
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.binaryType = 'arraybuffer'
     ws.onopen = () => {
-      setIsActive(true)
-      setTranscript('')
-      setWidgetToken(null)
+      const bufferSize = 4096
+      const processor = ctx.createScriptProcessor(bufferSize, 1, 1)
+      processor.onaudioprocess = (e) => {
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
+        const input = e.inputBuffer.getChannelData(0)
+        const chunk = resampleTo16kMono(input, sampleRate)
+        wsRef.current.send(chunk)
+      }
+      source.connect(processor)
+      processor.connect(ctx.destination)
+      processorRef.current = processor
     }
     ws.onclose = () => stop()
     ws.onerror = () => stop()
@@ -140,6 +208,10 @@ export function useVoice({ lat, lng }) {
       if (typeof event.data === 'string') {
         try {
           const json = JSON.parse(event.data)
+          if (json.user_transcript != null && !useLocalSttRef.current) {
+            setUserTranscript(json.user_transcript)
+            setLiveTranscript(json.user_transcript)
+          }
           if (json.transcript != null) setTranscript((t) => (t ? `${t} ${json.transcript}` : json.transcript))
           if (json.widget_token != null) setWidgetToken(json.widget_token)
         } catch (_) {}
@@ -163,25 +235,7 @@ export function useVoice({ lat, lng }) {
       source.start(when)
       nextPlayTimeRef.current = when + buffer.duration
     }
-
-    const bufferSize = 4096
-    const processor = ctx.createScriptProcessor(bufferSize, 1, 1)
-    processor.onaudioprocess = (e) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
-      const input = e.inputBuffer.getChannelData(0)
-      const chunk = resampleTo16kMono(input, sampleRate)
-      wsRef.current.send(chunk)
-    }
-    const source = ctx.createMediaStreamSource(stream)
-    const analyser = ctx.createAnalyser()
-    analyser.fftSize = 256
-    analyser.smoothingTimeConstant = 0.7
-    source.connect(analyser)
-    source.connect(processor)
-    processor.connect(ctx.destination)
-    analyserRef.current = analyser
-    processorRef.current = processor
   }, [lat, lng, isActive, stop])
 
-  return { isActive, start, stop, transcript, widgetToken, volume }
+  return { isActive, start, stop, transcript, userTranscript, liveTranscript, widgetToken, volume }
 }
