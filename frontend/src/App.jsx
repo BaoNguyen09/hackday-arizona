@@ -8,7 +8,7 @@ import { useLocation } from './hooks/useLocation'
 
 export default function App() {
   const [messages, setMessages] = useState([])
-  const [widgetToken, setWidgetToken] = useState(null)
+  const [widgetToken, setWidgetToken] = useState('widgetcontent/test-dishcovery-map-widget-token-12345')
   const { lat, lng } = useLocation()
 
   const handleSend = async (text) => {
