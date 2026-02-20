@@ -114,7 +114,8 @@ export default function App() {
           <MicButton isActive={voice.isActive} onStart={voice.start} onStop={voice.stop} />
         </div>
         <VolumeIndicator isActive={voice.isActive} volume={voice.volume} />
-
+      </div>
+      </div>
       </div>
       {/* Maps panel */}
 
