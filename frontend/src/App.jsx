@@ -15,7 +15,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [inputText, setInputText] = useState('')
   const { lat, lng, error: locationError, requestLocation } = useLocation()
-  const voice = useVoice({ lat, lng })
+  const voice = useVoice({ lat, lng, onWidgetToken: setWidgetToken })
   const prevVoiceActiveRef = useRef(false)
 
   // While voice is active: show live transcript in the input (real-time, including interim)
