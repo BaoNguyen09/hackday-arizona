@@ -87,6 +87,31 @@ npm run dev
 
 Frontend dev server runs on http://localhost:5173 and proxies `/chat`, `/health`, and `/voice` to the backend at :8000.
 
+### Testing the voice flow
+
+1. **Backend** (in one terminal):
+   ```bash
+   cd backend
+   source .venv/bin/activate
+   MOCK_VOICE=1 uvicorn main:app --reload --port 8000
+   ```
+   `MOCK_VOICE=1` runs a fake voice session so you can test without the Gemini Live API: speak into the mic, and after a short time the mock sends a transcript and a `widget_token`, so you should see a new user message in chat and the map widget update.
+
+2. **Frontend** (in another terminal):
+   ```bash
+   cd frontend && npm run dev
+   ```
+
+3. **In the browser** (http://localhost:5173):
+   - Allow microphone access when prompted.
+   - Tap the mic button (orange circle). It should pulse while “listening.”
+   - Speak for a second or two. The mock responds after ~10 chunks; you should see:
+     - A user message in the chat (your transcript) when you stop the mic.
+     - A mock `widget_token` updating the Maps widget (if the widget uses it).
+   - Open DevTools (F12) → **Console** to see any WebSocket or audio errors; **Network** → **WS** to inspect the `/voice` connection.
+
+4. **Without mock (real backend):** Omit `MOCK_VOICE=1` and ensure `.env` has `GEMINI_API_KEY`. The real `/voice` endpoint will only work once the Gemini Live proxy is implemented in `gemini_live.py` (see issue #2).
+
 ## API Contract
 
 See [API.md](API.md) for the full contract between frontend and backend. This is the single source of truth — backend owners update it when endpoints change.
