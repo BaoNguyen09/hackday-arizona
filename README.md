@@ -87,6 +87,14 @@ npm run dev
 
 Frontend dev server runs on http://localhost:5173 and proxies `/chat`, `/health`, and `/voice` to the backend at :8000.
 
+For the **Maps widget** (when the model returns places), create a `frontend/.env` with a Google Maps JavaScript API key and enable **Maps JavaScript API** and **Places API** for that key in [Google Cloud Console](https://console.cloud.google.com/apis/library):
+
+```bash
+VITE_GOOGLE_MAPS_API_KEY=your_maps_platform_key
+```
+
+This is separate from the Gemini API key used by the backend.
+
 ## API Contract
 
 See [API.md](API.md) for the full contract between frontend and backend. This is the single source of truth — backend owners update it when endpoints change.
