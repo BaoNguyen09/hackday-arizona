@@ -6,10 +6,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/chat': 'http://localhost:8000',
-      '/health': 'http://localhost:8000',
+      '/chat': 'http://localhost:8001',
+      '/health': 'http://localhost:8001',
       '/voice': {
-        target: 'ws://localhost:8000',
+        target: 'ws://localhost:8001',
         ws: true,
       },
     },

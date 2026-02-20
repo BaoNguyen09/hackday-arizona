@@ -93,7 +93,32 @@ For the **Maps widget** (when the model returns places), create a `frontend/.env
 VITE_GOOGLE_MAPS_API_KEY=your_maps_platform_key
 ```
 
-This is separate from the Gemini API key used by the backend.
+This is separate from the Gemini API key used by the backend. If you see **ExpiredKeyMapError**, the key is expired or invalid — create a new key in [Google Cloud Console](https://console.cloud.google.com/apis/credentials), enable **Maps JavaScript API** and **Places API**, and ensure billing is enabled on the project.
+
+### Testing the voice flow
+
+1. **Backend** (in one terminal):
+   ```bash
+   cd backend
+   source .venv/bin/activate
+   MOCK_VOICE=1 uvicorn main:app --reload --port 8000
+   ```
+   `MOCK_VOICE=1` runs a fake voice session so you can test without the Gemini Live API: speak into the mic, and after a short time the mock sends a transcript and a `widget_token`, so you should see a new user message in chat and the map widget update.
+
+2. **Frontend** (in another terminal):
+   ```bash
+   cd frontend && npm run dev
+   ```
+
+3. **In the browser** (http://localhost:5173):
+   - Allow microphone access when prompted.
+   - Tap the mic button (orange circle). It should pulse while "listening."
+   - Speak for a second or two. The mock responds after ~10 chunks; you should see:
+     - A user message in the chat (your transcript) when you stop the mic.
+     - A mock `widget_token` updating the Maps widget (if the widget uses it).
+   - Open DevTools (F12) → **Console** to see any WebSocket or audio errors; **Network** → **WS** to inspect the `/voice` connection.
+
+4. **Without mock (real backend):** Omit `MOCK_VOICE=1` and ensure `.env` has `GEMINI_API_KEY`. The real `/voice` endpoint will only work once the Gemini Live proxy is implemented in `gemini_live.py` (see issue #2).
 
 ## API Contract
 

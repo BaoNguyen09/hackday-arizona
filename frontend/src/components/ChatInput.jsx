@@ -2,15 +2,19 @@ import { useState } from 'react'
 
 /**
  * Text input with send button. Disables while waiting for response.
+ * When value/onChange are provided, input is controlled (e.g. for voice draft); parent clears after send.
  */
-export default function ChatInput({ onSend, disabled = false }) {
-  const [text, setText] = useState('')
+export default function ChatInput({ onSend, disabled = false, value, onChange }) {
+  const [internalText, setInternalText] = useState('')
+  const isControlled = value !== undefined && onChange !== undefined
+  const text = isControlled ? value : internalText
+  const setText = isControlled ? onChange : setInternalText
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!text.trim() || disabled) return
     onSend(text.trim())
-    setText('')
+    if (!isControlled) setInternalText('')
   }
 
   return (

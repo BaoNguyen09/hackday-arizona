@@ -1,20 +1,41 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ChatWindow from './components/ChatWindow'
 import ChatInput from './components/ChatInput'
 import MapsWidget from './components/MapsWidget'
 import MicButton from './components/MicButton'
+import VolumeIndicator from './components/VolumeIndicator'
 import SuggestedPrompts from './components/SuggestedPrompts'
 import { useLocation } from './hooks/useLocation'
 import pot from './assets/pot.png';
+import { useVoice } from './hooks/useVoice'
 
 export default function App() {
   const [messages, setMessages] = useState([])
   const [widgetToken, setWidgetToken] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [inputText, setInputText] = useState('')
   const { lat, lng, error: locationError, requestLocation } = useLocation()
+  const voice = useVoice({ lat, lng })
+  const prevVoiceActiveRef = useRef(false)
+
+  // While voice is active: show live transcript in the input (real-time, including interim)
+  useEffect(() => {
+    if (voice.isActive) setInputText(voice.liveTranscript)
+  }, [voice.isActive, voice.liveTranscript])
+
+  // When voice session ends: put final transcript in input for user to edit or send (no auto-send)
+  useEffect(() => {
+    if (!prevVoiceActiveRef.current || voice.isActive) {
+      prevVoiceActiveRef.current = voice.isActive
+      return
+    }
+    prevVoiceActiveRef.current = false
+    setInputText(voice.userTranscript?.trim() ?? '')
+  }, [voice.isActive, voice.userTranscript])
 
   const handleSend = async (text) => {
     if (!text.trim()) return
+    setInputText('')
     const userMessage = { role: 'user', content: text.trim() }
     setMessages((prev) => [...prev, userMessage])
     setIsLoading(true)
@@ -82,12 +103,18 @@ export default function App() {
 
         <ChatWindow messages={messages} isTyping={isLoading} />
         {messages.length === 0 && <SuggestedPrompts onSelect={handleSend} />}
-
         <div className="border-t border-[#1c1c1c] bg-[#FFF5F2] flex items-center gap-2 p-4 sticky bottom-0">
-          <ChatInput onSend={handleSend} disabled={isLoading} />
-          <MicButton lat={lat} lng={lng} />
+          <div className="flex items-center gap-2 p-4 border-t border-[#1c1c1c]">
+          <ChatInput
+          value={inputText}
+          onChange={setInputText}
+          onSend={handleSend}
+          disabled={isLoading}
+        />
+          <MicButton isActive={voice.isActive} onStart={voice.start} onStop={voice.stop} />
         </div>
-        </div>
+        <VolumeIndicator isActive={voice.isActive} volume={voice.volume} />
+
       </div>
       {/* Maps panel */}
 
