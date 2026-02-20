@@ -71,7 +71,7 @@ export default function App() {
 
       {/* Maps panel */}
       <div className="w-[45%] flex items-center justify-center">
-        <MapsWidget widgetToken={widgetToken} />
+        <MapsWidget widgetToken={widgetToken} lat={lat} lng={lng} />
       </div>
     </div>
   )
