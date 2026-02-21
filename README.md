@@ -1,8 +1,10 @@
 # Dishcovery
 
+https://github.com/user-attachments/assets/661a77db-d404-4d84-8493-4b4a1e4d874a
+
 Voice-first food discovery PWA powered by Gemini. Tap the mic, say what you're craving, and Dishcovery responds — in voice — with real nearby restaurant recommendations backed by live Google Maps data. Also works as a regular chatbot for those who prefer typing.
 
-Built at Hack Arizona HackDay 2026. Target prize: **Best Use of Gemini**.
+Built at Hack Arizona HackDay 2026. Target prize: **Best Use of Gemini**. (we didn't win tho, got 12/15 pts)
 
 ## Demo
 
