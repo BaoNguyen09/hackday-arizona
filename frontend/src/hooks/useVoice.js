@@ -43,7 +43,7 @@ function rmsFromSamples(samples) {
 const SpeechRecognitionAPI =
   typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
 
-export function useVoice({ lat, lng }) {
+export function useVoice({ lat, lng, onWidgetToken }) {
   const [isActive, setIsActive] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [userTranscript, setUserTranscript] = useState('')
@@ -152,6 +152,7 @@ export function useVoice({ lat, lng }) {
     setUserTranscript('')
     setLiveTranscript('')
     setWidgetToken(null)
+    // Don't clear App's widgetToken when starting voice — only update when we receive a new token
     finalTranscriptRef.current = ''
     setIsActive(true)
 
@@ -213,7 +214,10 @@ export function useVoice({ lat, lng }) {
             setLiveTranscript(json.user_transcript)
           }
           if (json.transcript != null) setTranscript((t) => (t ? `${t} ${json.transcript}` : json.transcript))
-          if (json.widget_token != null) setWidgetToken(json.widget_token)
+          if (json.widget_token != null) {
+            setWidgetToken(json.widget_token)
+            onWidgetToken?.(json.widget_token)
+          }
         } catch (_) {}
         return
       }
